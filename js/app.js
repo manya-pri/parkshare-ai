@@ -1,9 +1,23 @@
 /**
  * ParkShare AI - Core Application Logic
- * Smart Parking Marketplace with AI Demand Prediction & Dynamic Pricing
+ * Comprehensive 20-Feature Smart Parking Marketplace with AI Demand Prediction,
+ * Dynamic Pricing, Weather-Aware Surge, Computer Vision Space Verification,
+ * Overstay Alerts, Vehicle-Based Pricing, and Famous Location Access.
  */
 
-// Initial Seed Data: High-Demand Urban Spots (Bangalore Focus)
+// Famous Landmarks Database for Instant Access
+const FAMOUS_LANDMARKS = [
+  { id: 'chinnaswamy', name: '🏏 Chinnaswamy Stadium', locality: 'mgroad', query: 'chinnaswamy', coords: { x: 30, y: 32 }, tag: 'Cricket Match Zone', demandLevel: 'high' },
+  { id: 'indiranagar100', name: '🍸 Indiranagar 100ft Rd', locality: 'indiranagar', query: 'indiranagar', coords: { x: 40, y: 46 }, tag: 'Nightlife & Pubs', demandLevel: 'high' },
+  { id: 'koramangala5', name: '☕ Koramangala 5th Block', locality: 'koramangala', query: 'koramangala', coords: { x: 48, y: 72 }, tag: 'Cafes & Startups', demandLevel: 'high' },
+  { id: 'churchstreet', name: '🛍️ Church Street / MG Rd', locality: 'mgroad', query: 'church street', coords: { x: 26, y: 36 }, tag: 'CBD & Metro Central', demandLevel: 'high' },
+  { id: 'whitefielditpl', name: '🏢 Whitefield ITPL', locality: 'whitefield', query: 'whitefield', coords: { x: 78, y: 34 }, tag: 'IT Tech Parks', demandLevel: 'medium' },
+  { id: 'phoenixmarketcity', name: '🏬 Phoenix Marketcity', locality: 'whitefield', query: 'phoenix', coords: { x: 72, y: 48 }, tag: 'Mall & Weekend Rush', demandLevel: 'high' },
+  { id: 'hsrsector1', name: '🌳 HSR Layout Sector 1/2', locality: 'hsr', query: 'hsr', coords: { x: 62, y: 82 }, tag: 'Residential & Cafes', demandLevel: 'low' },
+  { id: 'majestic', name: '🚇 Majestic City Central', locality: 'mgroad', query: 'majestic', coords: { x: 18, y: 28 }, tag: 'Railway & Transit', demandLevel: 'high' }
+];
+
+// Rich Seed Data with 20 Smart Parking Attributes
 const INITIAL_SPOTS = [
   {
     id: 'spot-1',
@@ -11,8 +25,9 @@ const INITIAL_SPOTS = [
     type: 'office',
     typeLabel: '🏢 Office Parking',
     typeTagClass: 'tag-office',
-    location: "Whitefield Main Road, Bangalore",
+    location: "Whitefield Main Road, Near ITPL",
     locality: "whitefield",
+    landmarkNear: "whitefielditpl",
     host: "Brigade Facility Mgmt",
     rating: 4.9,
     reviewsCount: 142,
@@ -23,11 +38,17 @@ const INITIAL_SPOTS = [
     features: ["⚡ EV Fast Charger", "📹 24/7 CCTV", "🛡️ Boom Barrier OTP", "☂️ Basement Covered"],
     availability: "Daily: 6:00 PM – 8:00 AM & Weekends All Day",
     distance: "120m away",
+    distanceMeters: 120,
     walkingTime: "2 min walk",
-    mapCoords: { x: 74, y: 32 }, // Percentage on radar map
+    walkScore: 96,
+    ecoScore: "Saves 1.6kg CO2 (A+)",
+    isCovered: true,
+    groupParkingCapable: true,
+    fakeRiskScore: "0.4% (VERIFIED GREEN)",
+    mapCoords: { x: 74, y: 32 },
     spotsAvailable: 18,
     occupancyRate: 88,
-    description: "Secure corporate basement parking slot available every weekday evening after corporate hours and full weekends. Automated ANPR and QR gate."
+    description: "Corporate basement parking slot available every weekday evening after corporate hours and full weekends. Automated ANPR and QR gate."
   },
   {
     id: 'spot-2',
@@ -35,8 +56,9 @@ const INITIAL_SPOTS = [
     type: 'home',
     typeLabel: '🏠 Home Driveway',
     typeTagClass: 'tag-home',
-    location: "12th Main, Indiranagar, Bangalore",
+    location: "12th Main, Indiranagar (Near Toit)",
     locality: "indiranagar",
+    landmarkNear: "indiranagar100",
     host: "Col. R. Sharma (Retd.)",
     rating: 5.0,
     reviewsCount: 89,
@@ -47,7 +69,13 @@ const INITIAL_SPOTS = [
     features: ["🔒 Private Gated", "☂️ Roof Shed", "📹 Ring Camera", "🚗 Wide SUV Fit"],
     availability: "Mon–Sun: 10:00 AM – 11:30 PM",
     distance: "80m from 100ft Road",
+    distanceMeters: 80,
     walkingTime: "1 min walk",
+    walkScore: 98,
+    ecoScore: "Saves 1.9kg CO2 (A+)",
+    isCovered: true,
+    groupParkingCapable: false,
+    fakeRiskScore: "0.2% (VERIFIED GREEN)",
     mapCoords: { x: 38, y: 45 },
     spotsAvailable: 2,
     occupancyRate: 94,
@@ -61,6 +89,7 @@ const INITIAL_SPOTS = [
     typeTagClass: 'tag-shop',
     location: "80ft Road, Koramangala 4th Block",
     locality: "koramangala",
+    landmarkNear: "koramangala5",
     host: "Crossword Books Hub",
     rating: 4.8,
     reviewsCount: 64,
@@ -71,7 +100,13 @@ const INITIAL_SPOTS = [
     features: ["💡 Well Lit", "🛡️ Night Watchman", "⚡ EV 15A Plug"],
     availability: "Daily: 8:00 PM – 9:00 AM",
     distance: "250m away",
+    distanceMeters: 250,
     walkingTime: "3 min walk",
+    walkScore: 89,
+    ecoScore: "Saves 1.1kg CO2 (A)",
+    isCovered: false,
+    groupParkingCapable: true,
+    fakeRiskScore: "0.9% (VERIFIED GREEN)",
     mapCoords: { x: 48, y: 70 },
     spotsAvailable: 6,
     occupancyRate: 65,
@@ -85,6 +120,7 @@ const INITIAL_SPOTS = [
     typeTagClass: 'tag-home',
     location: "MG Road CBD, Near Metro Station",
     locality: "mgroad",
+    landmarkNear: "churchstreet",
     host: "Ananya Deshmukh",
     rating: 4.9,
     reviewsCount: 112,
@@ -95,7 +131,13 @@ const INITIAL_SPOTS = [
     features: ["🚆 50m to Metro", "☂️ Covered Basement", "📹 CCTV", "♿ Elevator Access"],
     availability: "Flexible: 8:00 AM – 10:00 PM",
     distance: "50m to MG Road Metro",
+    distanceMeters: 50,
     walkingTime: "1 min walk",
+    walkScore: 99,
+    ecoScore: "Saves 2.3kg CO2 (A+)",
+    isCovered: true,
+    groupParkingCapable: false,
+    fakeRiskScore: "0.5% (VERIFIED GREEN)",
     mapCoords: { x: 26, y: 36 },
     spotsAvailable: 1,
     occupancyRate: 92,
@@ -103,12 +145,44 @@ const INITIAL_SPOTS = [
   },
   {
     id: 'spot-5',
+    title: "Chinnaswamy Match-Day Private Bay",
+    type: 'home',
+    typeLabel: '🏠 Stadium Gated Spot',
+    typeTagClass: 'tag-home',
+    location: "Queens Road, Opp. Chinnaswamy Gate 3",
+    locality: "mgroad",
+    landmarkNear: "chinnaswamy",
+    host: "Dr. K. Venkatesh",
+    rating: 5.0,
+    reviewsCount: 96,
+    basePrice: 35,
+    demandLevel: 'high',
+    demandMultiplier: 1.6,
+    surgeReason: "IPL Cricket Match High Surge",
+    features: ["🏏 Stadium Gate 3 Walk", "🛡️ Guarded Gate", "☂️ Canopy Covered", "🚗 Easy Exit"],
+    availability: "Event Days & Daily 12:00 PM – 11:00 PM",
+    distance: "90m from Stadium Gate 3",
+    distanceMeters: 90,
+    walkingTime: "1 min walk",
+    walkScore: 99,
+    ecoScore: "Saves 2.5kg CO2 (A+)",
+    isCovered: true,
+    groupParkingCapable: true,
+    fakeRiskScore: "0.1% (VERIFIED GREEN)",
+    mapCoords: { x: 30, y: 32 },
+    spotsAvailable: 3,
+    occupancyRate: 96,
+    description: "Gated private compound directly opposite Chinnaswamy Stadium Gate 3. Avoid traffic blocks with private rear alley exit."
+  },
+  {
+    id: 'spot-6',
     title: "Sector 2 Community Open Plot",
     type: 'home',
     typeLabel: '🏠 Secured Plot',
     typeTagClass: 'tag-home',
     location: "14th Main, HSR Layout Sector 2",
     locality: "hsr",
+    landmarkNear: "hsrsector1",
     host: "Vikramaditya S.",
     rating: 4.7,
     reviewsCount: 38,
@@ -119,20 +193,58 @@ const INITIAL_SPOTS = [
     features: ["🚙 Large SUVs/Van", "🔒 Padlock Code", "📹 Perimeter Camera"],
     availability: "24/7 Round the Clock",
     distance: "400m away",
+    distanceMeters: 400,
     walkingTime: "5 min walk",
+    walkScore: 78,
+    ecoScore: "Saves 0.8kg CO2 (B)",
+    isCovered: false,
+    groupParkingCapable: true,
+    fakeRiskScore: "0.7% (VERIFIED GREEN)",
     mapCoords: { x: 62, y: 82 },
     spotsAvailable: 4,
     occupancyRate: 35,
     description: "Fenced private compound in HSR Layout Sector 2. Extra wide space, very easy in-and-out maneuvering with digital gate code."
   },
   {
-    id: 'spot-6',
+    id: 'spot-7',
+    title: "Phoenix Marketcity Spillover Carport",
+    type: 'shop',
+    typeLabel: '🏬 Commercial Lot',
+    typeTagClass: 'tag-shop',
+    location: "Mahadevapura, 150m from Phoenix Mall",
+    locality: "whitefield",
+    landmarkNear: "phoenixmarketcity",
+    host: "Nexus Plaza Admin",
+    rating: 4.8,
+    reviewsCount: 88,
+    basePrice: 30,
+    demandLevel: 'high',
+    demandMultiplier: 1.45,
+    surgeReason: "Weekend Mall Queue Bypass",
+    features: ["🛍️ Skip Mall Line", "📹 24/7 CCTV", "🛡️ Boom Barrier", "⚡ EV Charger"],
+    availability: "Daily: 10:00 AM – 11:00 PM",
+    distance: "150m from Phoenix Mall",
+    distanceMeters: 150,
+    walkingTime: "2 min walk",
+    walkScore: 94,
+    ecoScore: "Saves 1.8kg CO2 (A+)",
+    isCovered: true,
+    groupParkingCapable: true,
+    fakeRiskScore: "0.3% (VERIFIED GREEN)",
+    mapCoords: { x: 72, y: 48 },
+    spotsAvailable: 10,
+    occupancyRate: 85,
+    description: "Skip the 45-minute Phoenix Mall basement ramp queue. Park in this VIP verified spillover slot 2 mins walk from entrance."
+  },
+  {
+    id: 'spot-8',
     title: "Urban Ladder HQ Visitor Bay",
     type: 'office',
     typeLabel: '🏢 Corporate Bay',
     typeTagClass: 'tag-office',
     location: "Outer Ring Road, Bellandur",
     locality: "whitefield",
+    landmarkNear: "whitefielditpl",
     host: "Facility Admin ORR",
     rating: 4.8,
     reviewsCount: 79,
@@ -143,7 +255,13 @@ const INITIAL_SPOTS = [
     features: ["⚡ EV Fast Charger", "🛡️ Professional Security", "☂️ Multilevel Covered"],
     availability: "Weekdays 6:00 PM – 7:00 AM, Weekends 24 hrs",
     distance: "300m from Ecospace",
+    distanceMeters: 300,
     walkingTime: "4 min walk",
+    walkScore: 86,
+    ecoScore: "Saves 1.3kg CO2 (A)",
+    isCovered: true,
+    groupParkingCapable: true,
+    fakeRiskScore: "0.4% (VERIFIED GREEN)",
     mapCoords: { x: 82, y: 64 },
     spotsAvailable: 12,
     occupancyRate: 72,
@@ -151,23 +269,47 @@ const INITIAL_SPOTS = [
   }
 ];
 
-// App State
+// App State Management
 const AppState = {
   currentTab: 'driver',
   spots: [...INITIAL_SPOTS],
   selectedSpot: null,
   activeFilter: 'all',
   selectedLocality: 'all',
+  selectedLandmark: null,
   searchQuery: '',
   walletBalance: 1450,
   
+  // 20-Feature Parameters
+  vehicleType: 'car', // 'bike' (0.5x), 'car' (1.0x), 'suv' (1.4x)
+  weatherCondition: 'sunny', // 'sunny' (1.0x), 'rain' (1.35x covered), 'storm' (1.5x covered)
+  personalizationMode: 'ai_best', // 'ai_best', 'cheapest', 'closest', 'safest', 'eco'
+  hotspotOverlayActive: true,
+  groupParkingCount: 1,
+
+  // Active Session & Overstay Alert
+  activeSession: {
+    active: true,
+    spotName: "Sharma Villa (Indiranagar)",
+    slotNumber: "A-2",
+    totalSecondsRemaining: 868, // 14 mins 28 secs
+    timerInterval: null
+  },
+
+  // Future Parking Predictor
+  futurePrediction: {
+    targetDay: "Friday",
+    targetHour: 19,
+    location: "indiranagar"
+  },
+
   // AI Pricing Simulator State
   simulator: {
     dayOfWeek: 5, // Friday
     timeOfDay: 19, // 7 PM
-    localityType: 'entertainment', // 'entertainment', 'commercial', 'residential', 'tech_park'
-    eventMultiplier: 1.3, // Cricket match / Concert
-    localOccupancy: 88, // 88% full
+    localityType: 'entertainment',
+    eventMultiplier: 1.3,
+    localOccupancy: 88,
     basePrice: 30
   },
 
@@ -185,6 +327,11 @@ const AppState = {
 document.addEventListener('DOMContentLoaded', () => {
   setupNavigation();
   setupDriverMarketplace();
+  setupFamousLocations();
+  setupVehiclePricing();
+  setupWeatherPricing();
+  setupPersonalization();
+  setupActiveSessionTimer();
   setupHostStudio();
   setupSimulator();
   setupDiagrams();
@@ -201,7 +348,7 @@ function showToast(message, type = 'info') {
   if (!container) return;
   const toast = document.createElement('div');
   toast.className = 'toast';
-  const icon = type === 'success' ? '✅' : type === 'warning' ? '⚡' : 'ℹ️';
+  const icon = type === 'success' ? '✅' : type === 'warning' ? '⚡' : type === 'error' ? '🚨' : 'ℹ️';
   toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
   container.appendChild(toast);
   setTimeout(() => {
@@ -256,6 +403,264 @@ function switchTab(tabId) {
 }
 
 // ----------------------------------------------------
+// 1. Famous Locations & Custom Location Access
+// ----------------------------------------------------
+function setupFamousLocations() {
+  const chipsContainer = document.getElementById('famous-chips-container');
+  if (!chipsContainer) return;
+
+  chipsContainer.innerHTML = FAMOUS_LANDMARKS.map(landmark => `
+    <button class="famous-chip ${AppState.selectedLandmark === landmark.id ? 'active' : ''}" 
+            data-landmark-id="${landmark.id}"
+            onclick="selectFamousLandmark('${landmark.id}')">
+      <span>${landmark.name}</span>
+    </button>
+  `).join('');
+}
+
+function selectFamousLandmark(landmarkId) {
+  const landmark = FAMOUS_LANDMARKS.find(l => l.id === landmarkId);
+  if (!landmark) return;
+
+  AppState.selectedLandmark = landmarkId;
+  AppState.searchQuery = landmark.query;
+  AppState.selectedLocality = landmark.locality;
+
+  // Update search input and locality dropdown
+  const searchInput = document.getElementById('driver-search-input');
+  if (searchInput) searchInput.value = landmark.name.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+
+  const localitySelect = document.getElementById('driver-locality-select');
+  if (localitySelect) localitySelect.value = landmark.locality;
+
+  // Highlight chip
+  document.querySelectorAll('.famous-chip').forEach(c => {
+    c.classList.toggle('active', c.getAttribute('data-landmark-id') === landmarkId);
+  });
+
+  showToast(`🎯 Centered on ${landmark.name} • Filtered nearby verified spots within 300m!`, 'success');
+  renderSpots();
+  renderMapRadar();
+
+  // Highlight first matched spot if available
+  const matched = AppState.spots.find(s => s.locality === landmark.locality || s.landmarkNear === landmarkId);
+  if (matched) {
+    selectSpot(matched.id);
+  }
+}
+
+// ----------------------------------------------------
+// 2. Vehicle-Based Pricing (Bike / Car / SUV)
+// ----------------------------------------------------
+function setupVehiclePricing() {
+  const vehicleButtons = document.querySelectorAll('.vehicle-btn');
+  vehicleButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      vehicleButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      AppState.vehicleType = btn.getAttribute('data-vehicle');
+      
+      const multiplierText = AppState.vehicleType === 'bike' ? '0.5x (50% Off)' : AppState.vehicleType === 'suv' ? '1.4x (Heavy Bay)' : '1.0x (Standard)';
+      showToast(`🚗 Vehicle switched to ${AppState.vehicleType.toUpperCase()} (${multiplierText}). Updated all parking rates!`, 'info');
+      
+      renderSpots();
+      renderMapRadar();
+      if (AppState.selectedSpot) {
+        updateBookingBreakdown(AppState.selectedSpot, bookingDuration);
+      }
+    });
+  });
+}
+
+function getVehicleMultiplier() {
+  if (AppState.vehicleType === 'bike') return 0.5;
+  if (AppState.vehicleType === 'suv') return 1.4;
+  return 1.0; // standard car
+}
+
+// ----------------------------------------------------
+// 3. Weather-Aware Dynamic Pricing (Rain / Storm / Sunny)
+// ----------------------------------------------------
+function setupWeatherPricing() {
+  const weatherBadges = document.querySelectorAll('.weather-badge');
+  weatherBadges.forEach(badge => {
+    badge.addEventListener('click', () => {
+      weatherBadges.forEach(b => b.classList.remove('active'));
+      badge.classList.add('active');
+      AppState.weatherCondition = badge.getAttribute('data-weather');
+
+      if (AppState.weatherCondition === 'rain') {
+        showToast("🌧️ Monsoon Alert: Demand for covered/basement spots surged +35%! Open spots discounted.", "warning");
+      } else if (AppState.weatherCondition === 'storm') {
+        showToast("⛈️ Severe Thunderstorm: Covered spaces in extreme demand (+50% surge) to prevent hailstorm damage.", "warning");
+      } else {
+        showToast("☀️ Weather Normal: Standard fair pricing active.", "info");
+      }
+
+      renderSpots();
+      renderMapRadar();
+    });
+  });
+}
+
+function getWeatherMultiplier(isCovered) {
+  if (AppState.weatherCondition === 'rain') {
+    return isCovered ? 1.35 : 0.85; // covered surges, open discounts
+  }
+  if (AppState.weatherCondition === 'storm') {
+    return isCovered ? 1.50 : 0.75;
+  }
+  return 1.0;
+}
+
+// ----------------------------------------------------
+// 4. Personalized Ranking & Sorting
+// ----------------------------------------------------
+function setupPersonalization() {
+  const select = document.getElementById('personalization-select');
+  if (select) {
+    select.addEventListener('change', (e) => {
+      AppState.personalizationMode = e.target.value;
+      showToast(`🎯 Personalization updated: Ranked by ${e.target.options[e.target.selectedIndex].text}`, 'info');
+      renderSpots();
+    });
+  }
+}
+
+function sortSpotsByPersonalization(spots) {
+  const vMulti = getVehicleMultiplier();
+
+  return [...spots].sort((a, b) => {
+    const priceA = Math.round(a.basePrice * a.demandMultiplier * vMulti * getWeatherMultiplier(a.isCovered));
+    const priceB = Math.round(b.basePrice * b.demandMultiplier * vMulti * getWeatherMultiplier(b.isCovered));
+
+    if (AppState.personalizationMode === 'cheapest') {
+      return priceA - priceB;
+    }
+    if (AppState.personalizationMode === 'closest') {
+      return a.distanceMeters - b.distanceMeters;
+    }
+    if (AppState.personalizationMode === 'safest') {
+      const securityScoreA = (a.features.some(f => f.includes('CCTV')) ? 2 : 0) + (a.features.some(f => f.includes('Guard') || f.includes('Barrier')) ? 2 : 0) + a.rating;
+      const securityScoreB = (b.features.some(f => f.includes('CCTV')) ? 2 : 0) + (b.features.some(f => f.includes('Guard') || f.includes('Barrier')) ? 2 : 0) + b.rating;
+      return securityScoreB - securityScoreA;
+    }
+    if (AppState.personalizationMode === 'eco') {
+      return b.walkScore - a.walkScore;
+    }
+    // Default: 'ai_best' (Pareto Optimal Multi-Objective Score)
+    const scoreA = (100 - (a.distanceMeters / 6)) * 0.4 + (100 - priceA * 1.5) * 0.35 + (a.rating * 20) * 0.25;
+    const scoreB = (100 - (b.distanceMeters / 6)) * 0.4 + (100 - priceB * 1.5) * 0.35 + (b.rating * 20) * 0.25;
+    return scoreB - scoreA;
+  });
+}
+
+// ----------------------------------------------------
+// 5. Active Session Timer & Overstay Alert (Feature 17)
+// ----------------------------------------------------
+function setupActiveSessionTimer() {
+  const countdownElem = document.getElementById('session-countdown');
+  if (!countdownElem) return;
+
+  if (AppState.activeSession.timerInterval) {
+    clearInterval(AppState.activeSession.timerInterval);
+  }
+
+  AppState.activeSession.timerInterval = setInterval(() => {
+    if (AppState.activeSession.totalSecondsRemaining > 0) {
+      AppState.activeSession.totalSecondsRemaining--;
+      const mins = Math.floor(AppState.activeSession.totalSecondsRemaining / 60);
+      const secs = AppState.activeSession.totalSecondsRemaining % 60;
+      countdownElem.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} remaining`;
+
+      // Trigger Alert when under 15 minutes
+      if (AppState.activeSession.totalSecondsRemaining === 900) {
+        showToast("🚨 Overstay Warning: 15 minutes remaining on your booking! Extend now to prevent surcharge.", "error");
+      }
+    } else {
+      countdownElem.textContent = "EXPIRED (OVERSTAY)";
+      countdownElem.style.color = "#f43f5e";
+    }
+  }, 1000);
+}
+
+function extendParkingSession() {
+  AppState.activeSession.totalSecondsRemaining += 3600; // +1 hour
+  showToast("⏱️ Session Extended by +1 Hour! ₹40 deducted from wallet. Overstay penalty averted.", "success");
+  const banner = document.getElementById('active-session-banner');
+  if (banner) {
+    banner.style.borderColor = "#10b981";
+    setTimeout(() => banner.style.borderColor = "", 3000);
+  }
+}
+
+// ----------------------------------------------------
+// 6. Future Parking Prediction Oracle (Feature 11)
+// ----------------------------------------------------
+function predictFutureParking() {
+  const day = document.getElementById('oracle-day-select')?.value || 'Friday';
+  const hour = parseInt(document.getElementById('oracle-hour-select')?.value || '19');
+  const loc = document.getElementById('oracle-locality-select')?.value || 'indiranagar';
+
+  let demandText = "HIGH DEMAND (92%)";
+  let suggestedRate = 45;
+  let tip = "Heavy Friday evening dining rush projected. Pre-book now to lock base ₹30 rate!";
+
+  if (hour < 8) {
+    demandText = "LOW DEMAND (22%)";
+    suggestedRate = 20;
+    tip = "Early off-peak window. Plenty of empty driveway slots available.";
+  } else if (day === 'Sunday' && loc === 'whitefield') {
+    demandText = "LOW DEMAND (30%)";
+    suggestedRate = 22;
+    tip = "Office tech parks completely vacant. Great value parking.";
+  } else if (loc === 'chinnaswamy' || (day === 'Friday' && hour >= 18)) {
+    demandText = "EXTREME SURGE DEMAND (96%)";
+    suggestedRate = 50;
+    tip = "Stadium event & weekend traffic collision. Reserve ASAP to guarantee slot.";
+  }
+
+  const resultContainer = document.getElementById('oracle-prediction-display');
+  if (resultContainer) {
+    resultContainer.innerHTML = `
+      <div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">
+          Forecast for ${day} at ${hour.toString().padStart(2, '0')}:00
+        </div>
+        <div style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0.2rem 0;">
+          ${demandText} • Est. Rate: <span style="color: var(--accent-emerald-light);">₹${suggestedRate}/hr</span>
+        </div>
+        <div style="font-size: 0.8rem; color: #cbd5e1;">💡 ${tip}</div>
+      </div>
+      <button class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.82rem;" onclick="switchTab('driver'); showToast('Pre-booking discount locked in!', 'success')">
+        Lock Rate Early ⚡
+      </button>
+    `;
+  }
+}
+
+// ----------------------------------------------------
+// 7. Computer Vision AI Photo Verification (Feature 15)
+// ----------------------------------------------------
+function runAiPhotoScan() {
+  const laser = document.getElementById('cv-scan-laser');
+  const statusElem = document.getElementById('cv-scan-status');
+  const scoreElem = document.getElementById('cv-score-val');
+  
+  if (laser) laser.classList.add('scanning');
+  if (statusElem) statusElem.textContent = "AI Scanning Space: Analyzing geometry, obstructions & gate clearance...";
+
+  setTimeout(() => {
+    if (laser) laser.classList.remove('scanning');
+    if (statusElem) statusElem.innerHTML = "<span style='color: var(--accent-emerald-light); font-weight: 700;'>✅ Verification Complete: Space Approved for Listing!</span>";
+    if (scoreElem) scoreElem.textContent = "98% (READY TO LIST)";
+    
+    document.querySelectorAll('.cv-metric-box').forEach(box => box.classList.add('pass'));
+    showToast("📸 Computer Vision: Photo passed 4-point safety and dimension verification!", "success");
+  }, 2200);
+}
+
+// ----------------------------------------------------
 // Tab 1: Driver Marketplace & Interactive Radar Map
 // ----------------------------------------------------
 function setupDriverMarketplace() {
@@ -277,6 +682,13 @@ function setupDriverMarketplace() {
       AppState.searchQuery = e.target.value.toLowerCase();
       renderSpots();
     });
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        showToast(`Searching nearby parking spots for "${searchInput.value}"...`, 'info');
+        renderSpots();
+        renderMapRadar();
+      }
+    });
   }
 
   const localitySelect = document.getElementById('driver-locality-select');
@@ -284,6 +696,7 @@ function setupDriverMarketplace() {
     localitySelect.addEventListener('change', (e) => {
       AppState.selectedLocality = e.target.value;
       renderSpots();
+      renderMapRadar();
     });
   }
 
@@ -302,6 +715,8 @@ function renderSpots() {
   const grid = document.getElementById('spots-grid');
   if (!grid) return;
 
+  const vMulti = getVehicleMultiplier();
+
   let filtered = AppState.spots.filter(spot => {
     // Locality filter
     if (AppState.selectedLocality !== 'all' && spot.locality !== AppState.selectedLocality) {
@@ -316,52 +731,70 @@ function renderSpots() {
     if (AppState.activeFilter === 'office' && spot.type !== 'office') return false;
     if (AppState.activeFilter === 'shop' && spot.type !== 'shop') return false;
     if (AppState.activeFilter === 'ev' && !spot.features.some(f => f.includes('EV'))) return false;
-    if (AppState.activeFilter === 'covered' && !spot.features.some(f => f.toLowerCase().includes('covered') || f.toLowerCase().includes('shed'))) return false;
+    if (AppState.activeFilter === 'covered' && !spot.isCovered) return false;
+    if (AppState.activeFilter === 'group' && !spot.groupParkingCapable) return false;
     return true;
   });
+
+  // Sort by Personalization
+  filtered = sortSpotsByPersonalization(filtered);
 
   if (filtered.length === 0) {
     grid.innerHTML = `
       <div class="glass-card" style="text-align: center; padding: 3rem 1rem;">
         <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">🔍</span>
         <h3>No spots found matching your filter</h3>
-        <p style="color: var(--text-secondary); margin-top: 0.5rem;">Try choosing "All Bangalore" or clearing search keyword.</p>
+        <p style="color: var(--text-secondary); margin-top: 0.5rem;">Try choosing "All Bangalore" or picking one of the famous landmarks above.</p>
         <button class="btn-primary" style="margin: 1rem auto 0 auto;" onclick="resetFilters()">Reset Filters</button>
       </div>
     `;
     return;
   }
 
-  grid.innerHTML = filtered.map(spot => {
-    // Dynamic price calculation
-    const dynamicPrice = Math.round(spot.basePrice * spot.demandMultiplier);
+  grid.innerHTML = filtered.map((spot, index) => {
+    // Weather & Vehicle aware dynamic price
+    const weatherFactor = getWeatherMultiplier(spot.isCovered);
+    const dynamicPrice = Math.max(15, Math.round(spot.basePrice * spot.demandMultiplier * vMulti * weatherFactor));
+    const baseVehiclePrice = Math.round(spot.basePrice * vMulti);
+    const isSurged = dynamicPrice > baseVehiclePrice;
+
     const demandBadgeClass = spot.demandLevel === 'high' ? 'demand-high' : spot.demandLevel === 'medium' ? 'demand-medium' : 'demand-low';
     const demandIcon = spot.demandLevel === 'high' ? '🔥 HIGH DEMAND' : spot.demandLevel === 'medium' ? '⚡ NORMAL DEMAND' : '🟢 OFF-PEAK';
-    const isSurged = spot.demandMultiplier > 1.0;
+
+    // AI Top Recommendation Pick for the first item
+    const isAiPick = index === 0;
 
     return `
       <div class="spot-card ${AppState.selectedSpot?.id === spot.id ? 'selected' : ''}" 
            id="card-${spot.id}"
            onclick="selectSpot('${spot.id}')">
-        <div class="spot-top">
+        ${isAiPick ? `<div class="ai-pick-ribbon">🏆 AI #1 PICK: BEST VALUE & WALK</div>` : ''}
+
+        <div class="spot-top" style="${isAiPick ? 'margin-top: 0.5rem;' : ''}">
           <div>
             <span class="spot-type-tag ${spot.typeTagClass}">${spot.typeLabel}</span>
             <h3 class="spot-title">${spot.title}</h3>
             <div class="spot-location">
               <span>📍 ${spot.location}</span>
-              <span>•</span>
-              <span style="color: var(--accent-emerald-light); font-weight: 600;">${spot.distance}</span>
             </div>
           </div>
           <div class="spot-pricing">
             <div class="price-val">
-              ${isSurged ? `<span class="base-strikethrough">₹${spot.basePrice}</span>` : ''}₹${dynamicPrice}<span>/hr</span>
+              ${isSurged ? `<span class="base-strikethrough">₹${baseVehiclePrice}</span>` : ''}₹${dynamicPrice}<span>/hr</span>
             </div>
             <div class="demand-badge ${demandBadgeClass}">${demandIcon}</div>
           </div>
         </div>
 
         <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">${spot.description}</p>
+
+        <!-- 20-Feature Smart Metrics: Walk Score, Eco Score & Vehicle Pill -->
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin: 0.2rem 0;">
+          <span class="walk-score-pill" title="Park & Walk Score">🅿️ Walk Score: ${spot.walkScore}/100 (${spot.distance})</span>
+          <span class="eco-score-pill" title="Eco Parking Score">🌱 ${spot.ecoScore}</span>
+          ${spot.groupParkingCapable ? `<span class="feature-badge-tag" style="background: rgba(139, 92, 246, 0.15); color: #c084fc; border-color: rgba(139, 92, 246, 0.3);">🧑🤝🧑 Group Ready</span>` : ''}
+          ${spot.isCovered ? `<span class="feature-badge-tag">☂️ Rain Protected</span>` : ''}
+        </div>
 
         <div class="spot-features">
           ${spot.features.map(feat => `<span class="feature-pill">${feat}</span>`).join('')}
@@ -373,6 +806,7 @@ function renderSpots() {
             <div>
               <strong style="color: #fff; font-size: 0.82rem;">${spot.host}</strong>
               <span style="color: var(--accent-amber); margin-left: 0.35rem;">★ ${spot.rating} (${spot.reviewsCount})</span>
+              <span style="color: var(--accent-emerald-light); font-size: 0.72rem; margin-left: 0.35rem;">🛡️ ${spot.fakeRiskScore}</span>
             </div>
           </div>
           <button class="btn-book-sm" onclick="event.stopPropagation(); openBookingModal('${spot.id}')">
@@ -387,9 +821,11 @@ function renderSpots() {
 function resetFilters() {
   AppState.activeFilter = 'all';
   AppState.selectedLocality = 'all';
+  AppState.selectedLandmark = null;
   AppState.searchQuery = '';
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   document.querySelector('.filter-chip[data-filter="all"]')?.classList.add('active');
+  document.querySelectorAll('.famous-chip').forEach(c => c.classList.remove('active'));
   const localitySelect = document.getElementById('driver-locality-select');
   if (localitySelect) localitySelect.value = 'all';
   const searchInput = document.getElementById('driver-search-input');
@@ -421,8 +857,11 @@ function renderMapRadar() {
   const pinContainer = document.getElementById('map-pins-container');
   if (!pinContainer) return;
 
+  const vMulti = getVehicleMultiplier();
+
   pinContainer.innerHTML = AppState.spots.map(spot => {
-    const dynamicPrice = Math.round(spot.basePrice * spot.demandMultiplier);
+    const weatherFactor = getWeatherMultiplier(spot.isCovered);
+    const dynamicPrice = Math.max(15, Math.round(spot.basePrice * spot.demandMultiplier * vMulti * weatherFactor));
     const bubbleClass = spot.demandLevel === 'high' ? 'high' : spot.demandLevel === 'low' ? 'low' : '';
 
     return `
@@ -430,7 +869,7 @@ function renderMapRadar() {
            id="pin-${spot.id}"
            style="left: ${spot.mapCoords.x}%; top: ${spot.mapCoords.y}%;"
            onclick="selectSpot('${spot.id}')"
-           title="${spot.title} - ₹${dynamicPrice}/hr">
+           title="${spot.title} - ₹${dynamicPrice}/hr (Walk: ${spot.walkingTime})">
         <div class="pin-bubble ${bubbleClass}">
           <span class="pin-dot"></span>
           <span>₹${dynamicPrice}</span>
@@ -451,13 +890,15 @@ function openBookingModal(spotId) {
   AppState.selectedSpot = spot;
 
   const modal = document.getElementById('booking-modal');
-  const dynamicPrice = Math.round(spot.basePrice * spot.demandMultiplier);
-  const surgeDiff = dynamicPrice - spot.basePrice;
-
   document.getElementById('modal-spot-title').textContent = spot.title;
   document.getElementById('modal-spot-location').textContent = spot.location;
   document.getElementById('modal-spot-host').textContent = spot.host;
-  document.getElementById('modal-spot-rating').textContent = `★ ${spot.rating} (${spot.reviewsCount} reviews)`;
+  document.getElementById('modal-spot-rating').textContent = `★ ${spot.rating} (${spot.reviewsCount} reviews) • 🛡️ ${spot.fakeRiskScore}`;
+
+  // Vehicle badge in modal
+  const vText = AppState.vehicleType === 'bike' ? '🏍️ 2-Wheeler (50% Off)' : AppState.vehicleType === 'suv' ? '🚙 SUV Bay (+40%)' : '🚗 Standard Sedan';
+  const vBadge = document.getElementById('modal-vehicle-badge');
+  if (vBadge) vBadge.textContent = vText;
 
   // Pricing breakdown
   updateBookingBreakdown(spot, bookingDuration);
@@ -476,16 +917,20 @@ function setBookingDuration(hours) {
 }
 
 function updateBookingBreakdown(spot, hours) {
-  const dynamicHourly = Math.round(spot.basePrice * spot.demandMultiplier);
-  const totalBase = spot.basePrice * hours;
-  const totalSurge = (dynamicHourly - spot.basePrice) * hours;
-  const grossTotal = totalBase + totalSurge;
+  const vMulti = getVehicleMultiplier();
+  const weatherFactor = getWeatherMultiplier(spot.isCovered);
+  const dynamicHourly = Math.max(15, Math.round(spot.basePrice * spot.demandMultiplier * vMulti * weatherFactor));
+  const baseHourly = Math.round(spot.basePrice * vMulti);
+
+  const totalBase = baseHourly * hours;
+  const totalSurge = Math.max(0, (dynamicHourly - baseHourly) * hours);
+  const grossTotal = dynamicHourly * hours;
   
   // Platform commission (15%) included in the total economics
   const commission = Math.round(grossTotal * 0.15);
   const hostEarnings = grossTotal - commission;
 
-  document.getElementById('calc-base-rate').textContent = `₹${spot.basePrice} × ${hours} hr = ₹${totalBase}`;
+  document.getElementById('calc-base-rate').textContent = `₹${baseHourly} × ${hours} hr = ₹${totalBase}`;
   const surgeRow = document.getElementById('calc-surge-row');
   if (totalSurge > 0) {
     surgeRow.style.display = 'flex';
@@ -504,9 +949,18 @@ function confirmBookingPayment() {
   modal.classList.remove('active');
 
   const spot = AppState.selectedSpot;
-  const dynamicHourly = Math.round(spot.basePrice * spot.demandMultiplier);
+  const vMulti = getVehicleMultiplier();
+  const weatherFactor = getWeatherMultiplier(spot.isCovered);
+  const dynamicHourly = Math.max(15, Math.round(spot.basePrice * spot.demandMultiplier * vMulti * weatherFactor));
   const grossTotal = dynamicHourly * bookingDuration;
   const otpCode = Math.floor(1000 + Math.random() * 9000);
+
+  // Activate active session tracker with new booking
+  AppState.activeSession.active = true;
+  AppState.activeSession.spotName = spot.title;
+  AppState.activeSession.slotNumber = "B-08";
+  AppState.activeSession.totalSecondsRemaining = bookingDuration * 3600;
+  setupActiveSessionTimer();
 
   // Open Pass Modal
   const passModal = document.getElementById('pass-modal');
@@ -563,7 +1017,6 @@ function setupHostStudio() {
 function recalcOwnerAiPricing() {
   const activeProp = document.querySelector('.prop-type-btn.active')?.getAttribute('data-type') || 'home';
   const locality = document.getElementById('owner-locality-select')?.value || 'indiranagar';
-  const schedule = document.getElementById('owner-schedule-select')?.value || 'overnight';
 
   let predictedDemand = "HIGH (91%)";
   let suggestedBase = 30;
@@ -624,6 +1077,7 @@ function handleAddNewSpot() {
     typeTagClass: propType === 'home' ? 'tag-home' : propType === 'office' ? 'tag-office' : 'tag-shop',
     location: address || "Indiranagar, Bangalore",
     locality: locality,
+    landmarkNear: "indiranagar100",
     host: "You (Verified Host)",
     rating: 5.0,
     reviewsCount: 1,
@@ -634,7 +1088,13 @@ function handleAddNewSpot() {
     features: amenities.length > 0 ? amenities : ["📹 24/7 CCTV", "🚗 Gated Entry"],
     availability: "Flexible Daily Windows",
     distance: "150m away",
+    distanceMeters: 150,
     walkingTime: "2 min walk",
+    walkScore: 94,
+    ecoScore: "Saves 1.5kg CO2 (A)",
+    isCovered: document.getElementById('check-covered')?.checked || false,
+    groupParkingCapable: propType === 'office',
+    fakeRiskScore: "0.2% (VERIFIED GREEN)",
     mapCoords: { x: Math.floor(25 + Math.random() * 50), y: Math.floor(25 + Math.random() * 50) },
     spotsAvailable: 1,
     occupancyRate: 85,
@@ -714,16 +1174,16 @@ function updateSimulatorResults() {
   // 1. Time Factor (Peaks at 09:00 office & 18:00-22:00 evening dining/nightlife)
   let timeWeight = 0.5;
   if (sim.timeOfDay >= 18 && sim.timeOfDay <= 22) {
-    timeWeight = 1.0; // Peak evening rush
+    timeWeight = 1.0;
   } else if (sim.timeOfDay >= 8 && sim.timeOfDay <= 11) {
-    timeWeight = 0.85; // Morning office rush
+    timeWeight = 0.85;
   } else if (sim.timeOfDay >= 12 && sim.timeOfDay <= 17) {
-    timeWeight = 0.65; // Midday standard
+    timeWeight = 0.65;
   } else {
-    timeWeight = 0.35; // Late night off-peak
+    timeWeight = 0.35;
   }
 
-  // 2. Day Weight (Friday & Saturday high for entertainment, Monday-Thursday high for office)
+  // 2. Day Weight
   let dayWeight = 0.6;
   if (sim.dayOfWeek === 5) { // Friday
     dayWeight = 1.0;
@@ -748,10 +1208,6 @@ function updateSimulatorResults() {
     (timeWeight * 30 + dayWeight * 25 + occFactor * 30) * sim.eventMultiplier * (localityWeight * 0.9)
   ));
 
-  // Dynamic Price Surge Curve:
-  // Low (< 40): ₹20 - ₹25
-  // Medium (40 - 70): ₹28 - ₹35
-  // High (> 70): ₹38 - ₹50
   let multiplier = 0.65 + (compositeDemand / 100) * 0.85;
   const suggestedPrice = Math.round(base * multiplier);
 
@@ -786,7 +1242,6 @@ function updateSimulatorResults() {
     formulaPill.textContent = `Base ₹${base} × Multiplier ${multiplier.toFixed(2)}x = ₹${suggestedPrice}/hr`;
   }
 
-  // Render 24hr Curve Chart
   render24HrCurve(sim);
 }
 
@@ -804,7 +1259,6 @@ function render24HrCurve(sim) {
     let score = (tW * 35 + (sim.dayOfWeek === 5 ? 1.0 : 0.7) * 25 + (sim.localOccupancy / 100) * 30) * sim.eventMultiplier;
     let price = Math.round(30 * (0.65 + (score / 100) * 0.85));
 
-    // Map to SVG coordinates
     const x = (h / 23) * width;
     const y = height - ((price - 15) / 45) * height;
     points.push({ x, y, price, hour: h });
@@ -823,15 +1277,11 @@ function render24HrCurve(sim) {
         <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0" />
       </linearGradient>
     </defs>
-    <!-- Background grid lines -->
     <line x1="0" y1="35" x2="${width}" y2="35" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4" />
     <line x1="0" y1="70" x2="${width}" y2="70" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4" />
     <line x1="0" y1="105" x2="${width}" y2="105" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4" />
-    <!-- Filled Area -->
     <path d="${areaD}" fill="url(#chartGrad)" />
-    <!-- Curve Line -->
     <path d="${pathD}" fill="none" stroke="#38bdf8" stroke-width="2.5" />
-    <!-- Current Time Indicator -->
     <line x1="${currentX}" y1="0" x2="${currentX}" y2="${height}" stroke="#10b981" stroke-width="2" stroke-dasharray="3" />
     <circle cx="${currentX}" cy="${currentPoint.y}" r="5" fill="#10b981" stroke="#000" stroke-width="2" />
     <text x="${currentX > 400 ? currentX - 60 : currentX + 8}" y="${currentPoint.y - 8}" fill="#10b981" font-size="11" font-weight="700">
@@ -844,7 +1294,6 @@ function render24HrCurve(sim) {
 // Tab 4: PFD & TFD Diagrams & Node Inspector
 // ----------------------------------------------------
 const DIAGRAM_SPECS = {
-  // PFD Steps
   'pfd-1': {
     title: "1. User Registration & Verification",
     badge: "IDENTITY & TRUST",
@@ -931,7 +1380,6 @@ const DIAGRAM_SPECS = {
     }
   },
 
-  // TFD Components
   'api-gateway': {
     title: "API Gateway & Authentication Service",
     badge: "GATEWAY & SECURITY",
@@ -1011,23 +1459,13 @@ function setupDiagrams() {
   const tfdTabBtn = document.getElementById('btn-show-tfd');
   const aiTabBtn = document.getElementById('btn-show-ai-arch');
 
-  if (pfdTabBtn) {
-    pfdTabBtn.addEventListener('click', () => switchDiagramTab('pfd'));
-  }
-  if (tfdTabBtn) {
-    tfdTabBtn.addEventListener('click', () => switchDiagramTab('tfd'));
-  }
-  if (aiTabBtn) {
-    aiTabBtn.addEventListener('click', () => switchDiagramTab('ai-arch'));
-  }
+  if (pfdTabBtn) pfdTabBtn.addEventListener('click', () => switchDiagramTab('pfd'));
+  if (tfdTabBtn) tfdTabBtn.addEventListener('click', () => switchDiagramTab('tfd'));
+  if (aiTabBtn) aiTabBtn.addEventListener('click', () => switchDiagramTab('ai-arch'));
 
-  // Play PFD Simulation
   const playPfdBtn = document.getElementById('btn-play-pfd-flow');
-  if (playPfdBtn) {
-    playPfdBtn.addEventListener('click', playPfdSimulation);
-  }
+  if (playPfdBtn) playPfdBtn.addEventListener('click', playPfdSimulation);
 
-  // Default display
   inspectDiagramNode('pfd-1');
 }
 
@@ -1063,11 +1501,8 @@ function inspectDiagramNode(nodeKey) {
   if (titleElem) titleElem.textContent = spec.title;
   if (badgeElem) badgeElem.textContent = spec.badge;
   if (descElem) descElem.textContent = spec.description;
-  if (payloadElem) {
-    payloadElem.textContent = JSON.stringify(spec.payload, null, 2);
-  }
+  if (payloadElem) payloadElem.textContent = JSON.stringify(spec.payload, null, 2);
 
-  // Highlight SVG node
   document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('active-step'));
   const activeSvgNode = document.getElementById(`svg-node-${nodeKey}`);
   if (activeSvgNode) activeSvgNode.classList.add('active-step');
@@ -1105,14 +1540,9 @@ function setupPitchDeck() {
   const prevBtn = document.getElementById('pitch-prev-btn');
   const nextBtn = document.getElementById('pitch-next-btn');
 
-  if (prevBtn) {
-    prevBtn.addEventListener('click', () => changePitchSlide(AppState.currentSlide - 1));
-  }
-  if (nextBtn) {
-    nextBtn.addEventListener('click', () => changePitchSlide(AppState.currentSlide + 1));
-  }
+  if (prevBtn) prevBtn.addEventListener('click', () => changePitchSlide(AppState.currentSlide - 1));
+  if (nextBtn) nextBtn.addEventListener('click', () => changePitchSlide(AppState.currentSlide + 1));
 
-  // Keyboard navigation
   window.addEventListener('keydown', (e) => {
     if (AppState.currentTab === 'pitch') {
       if (e.key === 'ArrowRight' || e.key === 'PageDown') {
