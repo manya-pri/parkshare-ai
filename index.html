@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ParkShare AI — Smart Parking Slot Renting Marketplace with AI Dynamic Pricing</title>
-  <meta name="description" content="ParkShare AI unlocks unused private and corporate parking spots using predictive AI demand forecasting and dynamic pricing.">
+  <meta name="description" content="ParkShare AI unlocks unused private and corporate parking spots using predictive AI demand forecasting, weather-aware dynamic pricing, and computer vision space verification.">
   
   <!-- Modern Web Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,7 +28,7 @@
             <span class="gradient-text">AI</span>
             <span class="brand-tag">v2.4 Active</span>
           </div>
-          <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600;">Smart Slot Renting • Dynamic Pricing</div>
+          <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600;">Smart Slot Renting • Dynamic Pricing • 20 AI Features</div>
         </div>
       </div>
 
@@ -71,26 +71,51 @@
   <main class="main-content">
 
     <!-- ========================================================
-         TAB 1: DRIVER MARKETPLACE
+         FEATURE 17: ACTIVE PARKING OVERSTAY ALERT BANNER
+         ======================================================== -->
+    <div class="active-session-banner" id="active-session-banner">
+      <div class="session-info">
+        <div class="session-pulse"></div>
+        <div>
+          <div style="font-size: 0.88rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span>🚨 Active Session: Sharma Villa (Indiranagar) • Slot #A-2</span>
+            <span class="demand-badge demand-high" style="font-size: 0.68rem;">OVERSTAY ALERT</span>
+          </div>
+          <div style="font-size: 0.76rem; color: #cbd5e1; margin-top: 0.15rem;">
+            Another verified driver arrives in 20 mins. Avoid ₹50/hr overstay surcharge by extending now.
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div class="session-timer-badge" id="session-countdown">14:28 remaining</div>
+        <button class="btn-extend" id="btn-extend-session" onclick="extendParkingSession()">
+          Extend +1 Hour ⚡
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         TAB 1: DRIVER MARKETPLACE (FEATURES 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 19, 20)
          ======================================================== -->
     <section class="tab-pane active" id="tab-driver">
       <!-- Hero Search Section -->
       <div class="driver-hero">
         <div class="hero-header">
           <span style="font-size: 0.8rem; font-weight: 800; color: var(--accent-emerald-light); letter-spacing: 0.08em; text-transform: uppercase;">
-            PEER-TO-PEER SMART PARKING
+            PEER-TO-PEER SMART PARKING • 20 AI FEATURES
           </span>
-          <h1>Rent Unused Spots. <span class="gradient-text">Predict Demand.</span> Zero Hassle.</h1>
-          <p>Book private driveways, corporate lots after 6 PM, and overnight retail slots. AI guarantees the fairest dynamic price based on real-time traffic.</p>
+          <h1>Enter Any Location. <span class="gradient-text">Predict Demand.</span> Zero Circling.</h1>
+          <p>Book private driveways, corporate lots after 6 PM, and overnight retail slots. AI guarantees the fairest dynamic price based on real-time traffic, vehicle type, and weather conditions.</p>
         </div>
 
+        <!-- Search Bar Grid: Desired Location Input -->
         <div class="search-bar-grid">
           <div class="input-group">
-            <label for="driver-search-input">Destination / Landmark</label>
-            <input type="text" id="driver-search-input" class="input-control" placeholder="Search 100ft Rd, Koramangala, Metro station...">
+            <label for="driver-search-input">Enter Desired Location / Destination</label>
+            <input type="text" id="driver-search-input" class="input-control" placeholder="Type destination: 100ft Rd, Chinnaswamy, Metro...">
           </div>
           <div class="input-group">
-            <label for="driver-locality-select">Zone / Area</label>
+            <label for="driver-locality-select">Zone / Corridor</label>
             <select id="driver-locality-select" class="input-control">
               <option value="all">All Bangalore Zones</option>
               <option value="indiranagar">Indiranagar (100ft / 12th Main)</option>
@@ -101,17 +126,67 @@
             </select>
           </div>
           <div class="input-group">
-            <label for="driver-vehicle-select">Vehicle Type</label>
-            <select id="driver-vehicle-select" class="input-control">
-              <option value="car">🚗 4-Wheeler (Sedan / SUV)</option>
-              <option value="ev">⚡ EV (Requires Charger)</option>
-              <option value="bike">🛵 2-Wheeler (Bike / Scooter)</option>
+            <label for="personalization-select">Personalized Ranking</label>
+            <select id="personalization-select" class="personalization-select" style="width: 100%; height: 38px;">
+              <option value="ai_best">🎯 AI Top Pick (Pareto)</option>
+              <option value="cheapest">💰 Cheapest Price First</option>
+              <option value="closest">🚶 Shortest Walking Distance</option>
+              <option value="safest">🛡️ Maximum Security (CCTV+Guard)</option>
+              <option value="eco">🌱 Eco-Friendly (Min CO2)</option>
             </select>
           </div>
           <button class="btn-primary" id="btn-find-parking">
-            <span>Find Parking</span>
+            <span>Search Slots</span>
             <span>⚡</span>
           </button>
+        </div>
+
+        <!-- FAMOUS LOCATIONS QUICK ACCESS BAR (User Request) -->
+        <div class="famous-locations-bar">
+          <div class="famous-locations-label">
+            <span>🔥 Famous High-Demand Landmarks (1-Click Access):</span>
+          </div>
+          <div class="famous-chips-scroll" id="famous-chips-container">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+        <!-- Vehicle-Based Pricing (Feature 7) & Weather-Aware Pricing (Feature 10) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+          <!-- Vehicle Selector -->
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Vehicle Rate:</span>
+            <div class="vehicle-selector-ribbon">
+              <button class="vehicle-btn" data-vehicle="bike">
+                <span>🛵 2-Wheeler / Bike</span>
+                <span class="vehicle-multiplier-pill">0.5x (-50%)</span>
+              </button>
+              <button class="vehicle-btn active" data-vehicle="car">
+                <span>🚗 Car / Sedan</span>
+                <span class="vehicle-multiplier-pill">1.0x Base</span>
+              </button>
+              <button class="vehicle-btn" data-vehicle="suv">
+                <span>🚙 Large SUV / Van</span>
+                <span class="vehicle-multiplier-pill">1.4x Heavy</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Weather Selector -->
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Weather Condition:</span>
+            <div class="weather-selector-row" style="margin-top: 0;">
+              <button class="weather-badge active" data-weather="sunny">
+                <span>☀️ Sunny / Clear</span>
+              </button>
+              <button class="weather-badge rain" data-weather="rain">
+                <span>🌧️ Monsoon Rain (+35% Covered)</span>
+              </button>
+              <button class="weather-badge rain" data-weather="storm">
+                <span>⛈️ Thunderstorm</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Quick Filters -->
@@ -123,6 +198,7 @@
           <button class="filter-chip" data-filter="shop">🏬 Retail Overnight</button>
           <button class="filter-chip" data-filter="ev">⚡ EV Fast Charging</button>
           <button class="filter-chip" data-filter="covered">☂️ Covered / Basement</button>
+          <button class="filter-chip" data-filter="group">🧑🤝🧑 Group / Shared Parking</button>
         </div>
       </div>
 
@@ -136,24 +212,83 @@
               <span class="live-pulse-dot" title="Live real-time feed"></span>
             </h2>
             <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">
-              AI Dynamic Pricing Active
+              AI Dynamic Pricing • Vehicle & Weather Adjusted
             </span>
           </div>
 
           <div class="spots-grid" id="spots-grid">
             <!-- Dynamically populated via JS -->
           </div>
+
+          <!-- FEATURE 11: FUTURE PARKING PREDICTION ORACLE -->
+          <div class="future-oracle-card">
+            <div class="future-oracle-header">
+              <div>
+                <span class="slide-category" style="font-size: 0.7rem;">FEATURE 11: FUTURE PARKING PREDICTION ORACLE</span>
+                <h4 style="font-size: 1.05rem; color: #fff;">Predict Tomorrow's Parking Demand & Rates</h4>
+              </div>
+              <span class="demand-badge demand-high">🔮 AI ORACLE</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.75rem; margin-bottom: 0.85rem;" class="search-bar-grid">
+              <div class="input-group">
+                <label>Target Day</label>
+                <select id="oracle-day-select" class="input-control" onchange="predictFutureParking()">
+                  <option value="Friday" selected>This Friday</option>
+                  <option value="Saturday">This Saturday</option>
+                  <option value="Sunday">This Sunday</option>
+                  <option value="Monday">Next Monday</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Arrival Time</label>
+                <select id="oracle-hour-select" class="input-control" onchange="predictFutureParking()">
+                  <option value="9">09:00 AM (Morning Office)</option>
+                  <option value="13">01:00 PM (Lunch Transit)</option>
+                  <option value="19" selected>07:00 PM (Evening Peak)</option>
+                  <option value="22">10:00 PM (Late Night)</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Corridor</label>
+                <select id="oracle-locality-select" class="input-control" onchange="predictFutureParking()">
+                  <option value="indiranagar" selected>Indiranagar (100ft Rd)</option>
+                  <option value="chinnaswamy">Chinnaswamy Stadium</option>
+                  <option value="whitefield">Whitefield Tech Hub</option>
+                  <option value="koramangala">Koramangala 5th Block</option>
+                </select>
+              </div>
+              <button class="btn-primary" style="padding: 0.5rem 1rem;" onclick="predictFutureParking()">
+                <span>Predict</span>
+              </button>
+            </div>
+
+            <div class="oracle-prediction-result" id="oracle-prediction-display">
+              <div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">
+                  Forecast for Friday at 19:00
+                </div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0.2rem 0;">
+                  HIGH DEMAND (92%) • Est. Rate: <span style="color: var(--accent-emerald-light);">₹45/hr</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #cbd5e1;">💡 Heavy Friday evening dining rush projected. Pre-book now to lock base ₹30 rate!</div>
+              </div>
+              <button class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.82rem;" onclick="switchTab('driver'); showToast('Pre-booking discount locked in!', 'success')">
+                Lock Rate Early ⚡
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Right: Interactive Visual Radar & Map Canvas -->
+        <!-- Right: Interactive Visual Radar & Map Canvas (Feature 6 & 8) -->
         <div class="map-canvas-col">
           <div class="glass-card map-canvas-card">
             <div class="map-header">
               <div>
-                <h3 style="font-size: 1.05rem;">Live Locality Radar</h3>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">Real-time availability & dynamic surge heatmap</span>
+                <h3 style="font-size: 1.05rem;">Live Locality Radar & Hotspots</h3>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Real-time availability, spatial pins & dynamic surge heatmap</span>
               </div>
-              <span class="demand-badge demand-high" style="font-size: 0.72rem;">🔥 HIGH SURGE CORRIDOR</span>
+              <span class="demand-badge demand-high" style="font-size: 0.72rem;">🔥 HOTSPOT RADAR</span>
             </div>
 
             <!-- Stylized Interactive Map Viewport -->
@@ -178,14 +313,14 @@
                 <path d="M 0 35 Q 40 40 100 30" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="3,2" />
                 
                 <!-- Landmark Zone Badges in SVG -->
-                <rect x="25" y="10" width="18" height="8" rx="2" fill="rgba(6, 182, 212, 0.15)" stroke="rgba(6, 182, 212, 0.3)" />
-                <text x="34" y="15" fill="#38bdf8" font-size="2.6" font-weight="700" text-anchor="middle">CBD / METRO</text>
+                <rect x="24" y="10" width="20" height="8" rx="2" fill="rgba(6, 182, 212, 0.15)" stroke="rgba(6, 182, 212, 0.3)" />
+                <text x="34" y="15" fill="#38bdf8" font-size="2.6" font-weight="700" text-anchor="middle">CHINNASWAMY / CBD</text>
 
                 <rect x="70" y="20" width="22" height="8" rx="2" fill="rgba(139, 92, 246, 0.15)" stroke="rgba(139, 92, 246, 0.3)" />
-                <text x="81" y="25" fill="#a78bfa" font-size="2.6" font-weight="700" text-anchor="middle">TECH CORRIDOR</text>
+                <text x="81" y="25" fill="#a78bfa" font-size="2.6" font-weight="700" text-anchor="middle">WHITEFIELD ITPL</text>
 
                 <rect x="35" y="60" width="20" height="8" rx="2" fill="rgba(245, 158, 11, 0.15)" stroke="rgba(245, 158, 11, 0.3)" />
-                <text x="45" y="65" fill="#fbbf24" font-size="2.6" font-weight="700" text-anchor="middle">DINING / PUBS</text>
+                <text x="45" y="65" fill="#fbbf24" font-size="2.6" font-weight="700" text-anchor="middle">100FT DINING</text>
               </svg>
 
               <!-- Dynamic Map Pins Container -->
@@ -198,15 +333,15 @@
             <div class="map-legend">
               <div class="legend-item">
                 <span style="width: 8px; height: 8px; border-radius: 50%; background: #f43f5e; box-shadow: 0 0 8px #f43f5e;"></span>
-                <span>High Surge (₹45-50)</span>
+                <span>High Surge</span>
               </div>
               <div class="legend-item">
                 <span style="width: 8px; height: 8px; border-radius: 50%; background: #38bdf8;"></span>
-                <span>Standard (₹30)</span>
+                <span>Standard</span>
               </div>
               <div class="legend-item">
                 <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
-                <span>Off-Peak (₹20-25)</span>
+                <span>Off-Peak</span>
               </div>
             </div>
           </div>
@@ -215,13 +350,13 @@
     </section>
 
     <!-- ========================================================
-         TAB 2: HOST & OWNER STUDIO
+         TAB 2: HOST & OWNER STUDIO (FEATURES 4, 13, 14, 15, 16, 18)
          ======================================================== -->
     <section class="tab-pane" id="tab-host">
       <div class="owner-grid">
-        <!-- Left: Host Stats & Guidance -->
+        <!-- Left: Host Stats, Analytics & Guidance -->
         <div>
-          <!-- Host Earnings Stats -->
+          <!-- Feature 18: Owner Analytics Snapshot -->
           <div class="stats-row">
             <div class="stat-card">
               <div class="stat-label">Total Earned</div>
@@ -240,9 +375,12 @@
             </div>
           </div>
 
-          <!-- Value Proposition Card -->
+          <!-- Feature 13 & 16: Business Parking & Trust Shield -->
           <div class="glass-card" style="margin-bottom: 1.5rem;">
-            <h3 style="margin-bottom: 0.75rem; font-size: 1.15rem;">Turn Idle Space into Passive Income</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <h3 style="font-size: 1.15rem;">Turn Idle Space into Passive Income</h3>
+              <span class="feature-badge-tag">FEATURE 13: BUSINESS TIER</span>
+            </div>
             <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1rem;">
               Whether you are a homeowner with an empty driveway during work hours, an IT park with unused visitor bays after 6 PM, or a bookstore with empty night parking — ParkShare AI maximizes your yield without any active management.
             </p>
@@ -256,19 +394,28 @@
                 </div>
               </div>
               <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span style="font-size: 1.2rem;">🏢</span>
+                <div>
+                  <strong style="font-size: 0.85rem; color: #fff;">Commercial Office Invoicing (GST)</strong>
+                  <p style="font-size: 0.78rem; color: var(--text-muted);">Automated corporate tax invoices and monthly GST settlement reports for business hosts.</p>
+                </div>
+              </div>
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
                 <span style="font-size: 1.2rem;">🛡️</span>
                 <div>
                   <strong style="font-size: 0.85rem; color: #fff;">Guaranteed Escrow Protection</strong>
                   <p style="font-size: 0.78rem; color: var(--text-muted);">Drivers pay upfront. Payouts are credited directly to your UPI bank account upon booking completion.</p>
                 </div>
               </div>
-              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
-                <span style="font-size: 1.2rem;">🔒</span>
-                <div>
-                  <strong style="font-size: 0.85rem; color: #fff;">Verified Drivers & OTP Access</strong>
-                  <p style="font-size: 0.78rem; color: var(--text-muted);">Zero strangers. Every driver is verified with driving license and vehicle registration number.</p>
-                </div>
+            </div>
+
+            <!-- Feature 16: AI Fake Listing & Fraud Detection Shield -->
+            <div class="fake-detection-badge">
+              <div>
+                <strong style="color: var(--accent-emerald-light); font-size: 0.82rem;">🛡️ AI Fraud Shield Active:</strong>
+                <span style="color: var(--text-secondary); font-size: 0.75rem; margin-left: 0.25rem;">DigiLocker KYC + GPS Geofence verified</span>
               </div>
+              <span style="font-weight: 800; color: var(--accent-emerald-light); font-size: 0.82rem;">Risk: 0.4% (GREEN)</span>
             </div>
           </div>
 
@@ -289,7 +436,7 @@
           </div>
         </div>
 
-        <!-- Right: List a Space Form with Live AI Predictor -->
+        <!-- Right: List a Space Form with Live AI Predictor & CV Scanner -->
         <div class="glass-card">
           <h3 class="form-section-title">
             <span>➕ List Your Unused Space</span>
@@ -352,9 +499,45 @@
               <input type="text" id="owner-space-address" class="form-input" placeholder="e.g. #412, 12th Main, HAL 2nd Stage, Indiranagar" required>
             </div>
 
-            <!-- Amenities Checks -->
+            <!-- FEATURE 15: AI PARKING VERIFICATION SCANNER (Computer Vision Simulation) -->
+            <div class="cv-scanner-container">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span class="slide-category" style="font-size: 0.7rem;">FEATURE 15: AI PHOTO VERIFICATION</span>
+                <span class="demand-badge demand-low" id="cv-score-val">SCAN PENDING</span>
+              </div>
+              
+              <div class="cv-scanner-preview" onclick="runAiPhotoScan()" title="Click to test AI Computer Vision Scan">
+                <div class="cv-scan-laser" id="cv-scan-laser"></div>
+                <span style="font-size: 2.2rem; margin-bottom: 0.35rem;">📸</span>
+                <strong style="color: #fff; font-size: 0.88rem;">Click to Run AI Space Verification Scan</strong>
+                <span style="font-size: 0.75rem; color: var(--text-muted); text-align: center; max-width: 320px;" id="cv-scan-status">
+                  Checks dimensions (SUV fit), gate clearance, surface quality & hazards.
+                </span>
+              </div>
+
+              <div class="cv-results-grid">
+                <div class="cv-metric-box">
+                  <span>Dimensions</span>
+                  <strong class="green">2.8m × 5.4m</strong>
+                </div>
+                <div class="cv-metric-box">
+                  <span>Obstructions</span>
+                  <strong class="green">0 Hazards</strong>
+                </div>
+                <div class="cv-metric-box">
+                  <span>Gate Height</span>
+                  <strong class="green">2.5m (SUV)</strong>
+                </div>
+                <div class="cv-metric-box">
+                  <span>Surface</span>
+                  <strong class="green">Paved Flat</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Amenities Checks & Group Parking Toggle -->
             <div class="form-group">
-              <label>Amenities & Security</label>
+              <label>Amenities, Security & Capacity</label>
               <div class="amenities-checks">
                 <label class="amenity-checkbox">
                   <input type="checkbox" id="check-ev">
@@ -371,6 +554,10 @@
                 <label class="amenity-checkbox">
                   <input type="checkbox" id="check-guard">
                   <span>🛡️ Security Guard on Duty</span>
+                </label>
+                <label class="amenity-checkbox">
+                  <input type="checkbox" id="check-group">
+                  <span>🧑🤝🧑 Group / Shared Parking (Multi-Bay)</span>
                 </label>
               </div>
             </div>
@@ -613,22 +800,16 @@
                   <stop offset="0%" stop-color="#581c87" />
                   <stop offset="100%" stop-color="#7c3aed" />
                 </linearGradient>
-                <linearGradient id="pfdGradConverge" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#0f172a" />
-                  <stop offset="100%" stop-color="#1e293b" />
-                </linearGradient>
                 <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                   <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8" />
                 </marker>
               </defs>
 
-              <!-- Central Header Node -->
               <g class="flow-node" onclick="inspectDiagramNode('pfd-1')">
                 <rect x="260" y="20" width="240" height="48" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
                 <text x="380" y="50" fill="#fff" font-size="16" font-weight="800" text-anchor="middle">PARKSHARE AI</text>
               </g>
 
-              <!-- Split Branch Lines -->
               <line x1="380" y1="68" x2="380" y2="95" stroke="#38bdf8" stroke-width="2" />
               <line x1="180" y1="95" x2="580" y2="95" stroke="#38bdf8" stroke-width="2" />
               <line x1="180" y1="95" x2="180" y2="120" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
@@ -640,56 +821,44 @@
                 <text x="180" y="146" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">🏠 PARKING OWNER</text>
               </g>
 
-              <!-- Line -->
               <line x1="180" y1="162" x2="180" y2="185" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Owner Step 1: Register / Login -->
               <g class="flow-node" id="svg-node-pfd-1" onclick="inspectDiagramNode('pfd-1')">
                 <rect x="80" y="185" width="200" height="40" rx="6" fill="#131f38" stroke="#38bdf8" stroke-width="1" />
                 <text x="180" y="210" fill="#f8fafc" font-size="12" font-weight="600" text-anchor="middle">Register / Login</text>
               </g>
 
-              <!-- Line -->
               <line x1="180" y1="225" x2="180" y2="250" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Owner Step 2: Add Parking Space -->
               <g class="flow-node" id="svg-node-pfd-2" onclick="inspectDiagramNode('pfd-2')">
                 <rect x="80" y="250" width="200" height="40" rx="6" fill="#131f38" stroke="#38bdf8" stroke-width="1" />
                 <text x="180" y="275" fill="#f8fafc" font-size="12" font-weight="600" text-anchor="middle">Add Parking Space</text>
               </g>
 
-              <!-- Line -->
               <line x1="180" y1="290" x2="180" y2="315" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Owner Step 3: Set Availability (Time + Date) -->
               <g class="flow-node" onclick="inspectDiagramNode('pfd-2')">
                 <rect x="70" y="315" width="220" height="44" rx="6" fill="#131f38" stroke="#38bdf8" stroke-width="1" />
                 <text x="180" y="335" fill="#f8fafc" font-size="12" font-weight="600" text-anchor="middle">Set Availability</text>
                 <text x="180" y="350" fill="#94a3b8" font-size="10" text-anchor="middle">(Time + Date Windows)</text>
               </g>
 
-              <!-- Line -->
               <line x1="180" y1="359" x2="180" y2="385" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- AI Estimates Demand -->
               <g class="flow-node" id="svg-node-pfd-3" onclick="inspectDiagramNode('pfd-3')">
                 <rect x="70" y="385" width="220" height="44" rx="6" fill="url(#pfdGradAI)" stroke="#a78bfa" stroke-width="1.5" />
                 <text x="180" y="412" fill="#fff" font-size="12" font-weight="700" text-anchor="middle">🤖 AI Estimates Demand</text>
               </g>
 
-              <!-- Line -->
               <line x1="180" y1="429" x2="180" y2="455" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- AI Suggests Price -->
               <g class="flow-node" onclick="inspectDiagramNode('pfd-3')">
                 <rect x="70" y="455" width="220" height="44" rx="6" fill="url(#pfdGradAI)" stroke="#a78bfa" stroke-width="1.5" />
                 <text x="180" y="482" fill="#fff" font-size="12" font-weight="700" text-anchor="middle">💡 AI Suggests Price</text>
               </g>
 
-              <!-- Line -->
               <line x1="180" y1="499" x2="180" y2="525" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Parking Listed -->
               <g class="flow-node">
                 <rect x="80" y="525" width="200" height="40" rx="6" fill="#131f38" stroke="#10b981" stroke-width="1.5" />
                 <text x="180" y="550" fill="#34d399" font-size="12" font-weight="700" text-anchor="middle">✅ Parking Listed</text>
@@ -701,55 +870,43 @@
                 <text x="580" y="146" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">🚗 DRIVER</text>
               </g>
 
-              <!-- Line -->
               <line x1="580" y1="162" x2="580" y2="185" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Driver Step 1: Register / Login -->
               <g class="flow-node" onclick="inspectDiagramNode('pfd-1')">
                 <rect x="480" y="185" width="200" height="40" rx="6" fill="#131f38" stroke="#38bdf8" stroke-width="1" />
                 <text x="580" y="210" fill="#f8fafc" font-size="12" font-weight="600" text-anchor="middle">Register / Login</text>
               </g>
 
-              <!-- Line -->
               <line x1="580" y1="225" x2="580" y2="250" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Driver Step 2: Enter Location -->
               <g class="flow-node" id="svg-node-pfd-4" onclick="inspectDiagramNode('pfd-4')">
                 <rect x="480" y="250" width="200" height="40" rx="6" fill="#131f38" stroke="#38bdf8" stroke-width="1" />
                 <text x="580" y="275" fill="#f8fafc" font-size="12" font-weight="600" text-anchor="middle">Enter Location</text>
               </g>
 
-              <!-- Line -->
               <line x1="580" y1="290" x2="580" y2="315" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Driver Step 3: Search Parking -->
               <g class="flow-node" onclick="inspectDiagramNode('pfd-4')">
                 <rect x="480" y="315" width="200" height="40" rx="6" fill="#131f38" stroke="#38bdf8" stroke-width="1" />
                 <text x="580" y="340" fill="#f8fafc" font-size="12" font-weight="600" text-anchor="middle">Search Parking</text>
               </g>
 
-              <!-- Line -->
               <line x1="580" y1="355" x2="580" y2="385" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Driver Step 4: View Available Parking -->
               <g class="flow-node" onclick="inspectDiagramNode('pfd-4')">
                 <rect x="470" y="385" width="220" height="44" rx="6" fill="#131f38" stroke="#38bdf8" stroke-width="1" />
                 <text x="580" y="412" fill="#f8fafc" font-size="12" font-weight="600" text-anchor="middle">View Available Parking</text>
               </g>
 
-              <!-- Line -->
               <line x1="580" y1="429" x2="580" y2="455" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Driver Step 5: Select Parking -->
               <g class="flow-node" id="svg-node-pfd-5" onclick="inspectDiagramNode('pfd-5')">
                 <rect x="480" y="455" width="200" height="44" rx="6" fill="#131f38" stroke="#38bdf8" stroke-width="1" />
                 <text x="580" y="482" fill="#f8fafc" font-size="12" font-weight="600" text-anchor="middle">Select Parking</text>
               </g>
 
-              <!-- Line -->
               <line x1="580" y1="499" x2="580" y2="525" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Driver Step 6: Make Payment -->
               <g class="flow-node" onclick="inspectDiagramNode('pfd-5')">
                 <rect x="480" y="525" width="200" height="40" rx="6" fill="#131f38" stroke="#10b981" stroke-width="1.5" />
                 <text x="580" y="550" fill="#34d399" font-size="12" font-weight="700" text-anchor="middle">💳 Make Payment</text>
@@ -765,28 +922,22 @@
                 <text x="380" y="642" fill="#fff" font-size="13" font-weight="800" text-anchor="middle">🎉 Booking Confirmed (QR/OTP)</text>
               </g>
 
-              <!-- Line -->
               <line x1="380" y1="659" x2="380" y2="685" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Step 8: Parking Used -->
               <g class="flow-node" onclick="inspectDiagramNode('pfd-6')">
                 <rect x="270" y="685" width="220" height="40" rx="6" fill="#131f38" stroke="#38bdf8" stroke-width="1" />
                 <text x="380" y="710" fill="#f8fafc" font-size="12" font-weight="600" text-anchor="middle">🚗 Parking Used</text>
               </g>
 
-              <!-- Line -->
               <line x1="380" y1="725" x2="380" y2="750" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Step 9: Payment Released -->
               <g class="flow-node" id="svg-node-pfd-7" onclick="inspectDiagramNode('pfd-7')">
                 <rect x="260" y="750" width="240" height="40" rx="6" fill="#131f38" stroke="#10b981" stroke-width="1.5" />
                 <text x="380" y="775" fill="#34d399" font-size="12" font-weight="700" text-anchor="middle">💰 Payment Released to Host</text>
               </g>
 
-              <!-- Line -->
               <line x1="380" y1="790" x2="380" y2="810" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Step 10: Rating / Review & AI Loop -->
               <g class="flow-node" onclick="inspectDiagramNode('pfd-7')">
                 <rect x="240" y="810" width="280" height="46" rx="8" fill="url(#pfdGradAI)" stroke="#a78bfa" stroke-width="2" />
                 <text x="380" y="830" fill="#fff" font-size="12" font-weight="700" text-anchor="middle">⭐ Rating / Review</text>
@@ -816,7 +967,6 @@
                 </linearGradient>
               </defs>
 
-              <!-- 1. Client Tier -->
               <g class="flow-node" id="svg-node-client" onclick="inspectDiagramNode('api-gateway')">
                 <rect x="250" y="20" width="260" height="50" rx="8" fill="url(#tfdGradBox)" stroke="#38bdf8" stroke-width="1.8" />
                 <text x="380" y="42" fill="#fff" font-size="13" font-weight="800" text-anchor="middle">DRIVER & OWNER CLIENT</text>
@@ -825,17 +975,14 @@
 
               <line x1="380" y1="70" x2="380" y2="105" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- 2. Frontend / API Gateway -->
               <g class="flow-node" id="svg-node-api-gateway" onclick="inspectDiagramNode('api-gateway')">
                 <rect x="230" y="105" width="300" height="60" rx="8" fill="url(#tfdGradBox)" stroke="#38bdf8" stroke-width="2" />
                 <text x="380" y="130" fill="#fff" font-size="14" font-weight="800" text-anchor="middle">API GATEWAY & AUTH</text>
                 <text x="380" y="148" fill="#38bdf8" font-size="10" font-family="JetBrains Mono" text-anchor="middle">JWT Validation • Rate Limiter • Reverse Proxy</text>
               </g>
 
-              <!-- Split: Auth Service & DB -->
               <line x1="380" y1="165" x2="380" y2="205" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- 3. Parking Database -->
               <g class="flow-node" id="svg-node-parking-db" onclick="inspectDiagramNode('parking-db')">
                 <rect x="220" y="205" width="320" height="85" rx="8" fill="#131f38" stroke="#06b6d4" stroke-width="2" />
                 <text x="380" y="230" fill="#38bdf8" font-size="14" font-weight="800" text-anchor="middle">PARKING GEODATABASE & CACHE</text>
@@ -845,7 +992,6 @@
 
               <line x1="380" y1="290" x2="380" y2="330" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- 4. AI Engine -->
               <g class="flow-node" id="svg-node-ai-engine" onclick="inspectDiagramNode('ai-engine')">
                 <rect x="200" y="330" width="360" height="90" rx="10" fill="url(#pfdGradAI)" stroke="#c084fc" stroke-width="2.5" />
                 <text x="380" y="358" fill="#fff" font-size="15" font-weight="800" text-anchor="middle">AI ENGINE CORE</text>
@@ -855,7 +1001,6 @@
 
               <line x1="380" y1="420" x2="380" y2="455" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- 5. Recommendation Engine -->
               <g class="flow-node" id="svg-node-rec-engine" onclick="inspectDiagramNode('rec-engine')">
                 <rect x="230" y="455" width="300" height="65" rx="8" fill="#131f38" stroke="#38bdf8" stroke-width="1.8" />
                 <text x="380" y="480" fill="#fff" font-size="13" font-weight="800" text-anchor="middle">RECOMMENDATION ENGINE</text>
@@ -864,7 +1009,6 @@
 
               <line x1="380" y1="520" x2="380" y2="555" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- 6. Payment Gateway -->
               <g class="flow-node" id="svg-node-payment-gateway" onclick="inspectDiagramNode('payment-gateway')">
                 <rect x="240" y="555" width="280" height="65" rx="8" fill="#131f38" stroke="#10b981" stroke-width="2" />
                 <text x="380" y="580" fill="#34d399" font-size="13" font-weight="800" text-anchor="middle">PAYMENT GATEWAY & ESCROW</text>
@@ -873,7 +1017,6 @@
 
               <line x1="380" y1="620" x2="380" y2="655" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- 7. Booking System & QR Engine -->
               <g class="flow-node" id="svg-node-booking-engine" onclick="inspectDiagramNode('booking-engine')">
                 <rect x="230" y="655" width="300" height="70" rx="8" fill="url(#pfdGradOwner)" stroke="#38bdf8" stroke-width="2" />
                 <text x="380" y="682" fill="#fff" font-size="13" font-weight="800" text-anchor="middle">BOOKING ENGINE & ACCESS</text>
@@ -882,7 +1025,6 @@
 
               <line x1="380" y1="725" x2="380" y2="765" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- 8. Telemetry & Alert Bus -->
               <g class="flow-node" id="svg-node-alert-engine" onclick="inspectDiagramNode('alert-engine')">
                 <rect x="220" y="765" width="320" height="70" rx="8" fill="#131f38" stroke="#f59e0b" stroke-width="1.8" />
                 <text x="380" y="792" fill="#fbbf24" font-size="13" font-weight="800" text-anchor="middle">NOTIFICATION & TELEMETRY BUS</text>
@@ -903,9 +1045,7 @@
               <span class="demand-badge demand-high">LightGBM Regression</span>
             </div>
 
-            <!-- Visual Flowchart for AI Core -->
             <svg class="flow-svg" viewBox="0 0 760 620">
-              <!-- Stage 1: Historical Booking Data -->
               <g class="flow-node" onclick="inspectDiagramNode('ai-engine')">
                 <rect x="230" y="20" width="300" height="48" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1.8" />
                 <text x="380" y="50" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">Historical Booking Data (Parquet / Lakehouse)</text>
@@ -913,7 +1053,6 @@
 
               <line x1="380" y1="68" x2="380" y2="105" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Stage 2: Data Preprocessing & Feature Engineering -->
               <g class="flow-node" onclick="inspectDiagramNode('ai-engine')">
                 <rect x="180" y="105" width="400" height="65" rx="8" fill="#131f38" stroke="#a78bfa" stroke-width="1.8" />
                 <text x="380" y="130" fill="#e9d5ff" font-size="13" font-weight="800" text-anchor="middle">Data Preprocessing & Feature Engineering</text>
@@ -922,7 +1061,6 @@
 
               <line x1="380" y1="170" x2="380" y2="210" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Stage 3: Demand Prediction Model -->
               <g class="flow-node" onclick="inspectDiagramNode('ai-engine')">
                 <rect x="200" y="210" width="360" height="85" rx="8" fill="url(#pfdGradAI)" stroke="#c084fc" stroke-width="2.5" />
                 <text x="380" y="238" fill="#fff" font-size="14" font-weight="800" text-anchor="middle">DEMAND PREDICTION MODEL</text>
@@ -932,7 +1070,6 @@
 
               <line x1="380" y1="295" x2="380" y2="335" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Stage 4: Dynamic Pricing Formula -->
               <g class="flow-node" onclick="inspectDiagramNode('ai-engine')">
                 <rect x="190" y="335" width="380" height="95" rx="8" fill="#131f38" stroke="#10b981" stroke-width="2" />
                 <text x="380" y="362" fill="#34d399" font-size="14" font-weight="800" text-anchor="middle">DYNAMIC PRICING LOGIC</text>
@@ -942,14 +1079,12 @@
 
               <line x1="380" y1="430" x2="380" y2="470" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
 
-              <!-- Stage 5: Marketplace Booking Execution -->
               <g class="flow-node" onclick="inspectDiagramNode('booking-engine')">
                 <rect x="240" y="470" width="280" height="50" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1.8" />
                 <text x="380" y="495" fill="#fff" font-size="12" font-weight="700" text-anchor="middle">Booking Transaction & Payment</text>
                 <text x="380" y="510" fill="#94a3b8" font-size="9" text-anchor="middle">15% Commission Retained • 85% Released to Host</text>
               </g>
 
-              <!-- Feedback Loop Return Arrow -->
               <path d="M 520 495 L 680 495 L 680 140 L 590 140" fill="none" stroke="#a78bfa" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow)" />
               <text x="690" y="320" fill="#a78bfa" font-size="10" font-weight="700" transform="rotate(90, 690, 320)">CONTINUOUS TELEMETRY RETRAINING</text>
             </svg>
@@ -1062,28 +1197,40 @@
             </p>
           </div>
 
-          <!-- Slide 3: The Solution -->
+          <!-- Slide 3: The 20 Smart Features Matrix (NEW) -->
           <div class="pitch-slide" data-slide="2">
-            <span class="slide-category">OUR INNOVATION</span>
-            <h2 class="slide-title">ParkShare AI: Smart Decentralized Parking</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-              <div class="glass-card">
-                <h4 style="color: #38bdf8; font-size: 1.1rem; margin-bottom: 0.5rem;">🏠 For Parking Space Owners</h4>
-                <ul style="font-size: 0.88rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.6rem; padding-left: 1.2rem;">
-                  <li><strong>Homeowners:</strong> Monetize driveways while away at work or in the evening.</li>
-                  <li><strong>Offices & IT Parks:</strong> Unlock huge recurring revenue after 6 PM and on weekends.</li>
-                  <li><strong>Shops & Retailers:</strong> Lease front parking spots overnight to neighborhood drivers.</li>
-                  <li><strong>Zero Hardware:</strong> Easy entry verification with dynamic QR codes & 4-digit OTP.</li>
-                </ul>
+            <span class="slide-category">COMPREHENSIVE INNOVATION</span>
+            <h2 class="slide-title">20 Smart Parking Features Built-In</h2>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.85rem; font-size: 0.8rem; max-height: 340px; overflow-y: auto;">
+              <div style="background: rgba(7, 11, 20, 0.6); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <strong>🤖 AI Smart Price:</strong> Real-time demand elasticity model
               </div>
-              <div class="glass-card">
-                <h4 style="color: var(--accent-emerald-light); font-size: 1.1rem; margin-bottom: 0.5rem;">🚗 For Urban Drivers</h4>
-                <ul style="font-size: 0.88rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.6rem; padding-left: 1.2rem;">
-                  <li><strong>Guaranteed Spot:</strong> Reserve before leaving home; no circling blocks in frustration.</li>
-                  <li><strong>Fair Dynamic Price:</strong> AI predicts fair price (₹20 off-peak to ₹45 during Friday rush).</li>
-                  <li><strong>EV Friendly:</strong> Filter by dedicated private EV fast chargers while parked.</li>
-                  <li><strong>100% Cashless:</strong> Seamless UPI Autopay and instant check-in.</li>
-                </ul>
+              <div style="background: rgba(7, 11, 20, 0.6); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <strong>🧠 Recommendation Engine:</strong> Pareto optimal distance vs cost
+              </div>
+              <div style="background: rgba(7, 11, 20, 0.6); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <strong>🚗 Vehicle-Based Pricing:</strong> Bike (0.5x), Car (1.0x), SUV (1.4x)
+              </div>
+              <div style="background: rgba(7, 11, 20, 0.6); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <strong>🌧️ Weather-Aware Surge:</strong> Rain increases covered spots by +35%
+              </div>
+              <div style="background: rgba(7, 11, 20, 0.6); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <strong>🅿️ Park & Walk Score:</strong> Exact meters & minute walk metrics
+              </div>
+              <div style="background: rgba(7, 11, 20, 0.6); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <strong>🔮 Future Predictor:</strong> Forecasts tomorrow's rush hours
+              </div>
+              <div style="background: rgba(7, 11, 20, 0.6); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <strong>📸 AI Space Verification:</strong> Computer vision checks usability
+              </div>
+              <div style="background: rgba(7, 11, 20, 0.6); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <strong>🛡️ Fake Listing Shield:</strong> Digital KYC & GPS geofence checks
+              </div>
+              <div style="background: rgba(7, 11, 20, 0.6); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <strong>🚨 Overstay Alerts:</strong> Real-time timer with 1-click extension
+              </div>
+              <div style="background: rgba(7, 11, 20, 0.6); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <strong>🌱 Eco Parking Score:</strong> Quantifies CO2 saved by zero circling
               </div>
             </div>
           </div>
@@ -1302,7 +1449,10 @@
     <div class="modal-window">
       <button class="modal-close" onclick="closeModal('booking-modal')">✕</button>
 
-      <span class="slide-category">CONFIRM RESERVATION</span>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="slide-category">CONFIRM RESERVATION</span>
+        <span class="demand-badge demand-low" id="modal-vehicle-badge">🚗 Standard Car</span>
+      </div>
       <h3 id="modal-spot-title" style="font-size: 1.3rem; margin-top: 0.25rem;">Spot Name</h3>
       <p id="modal-spot-location" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">Location</p>
 
@@ -1312,8 +1462,8 @@
           <strong style="color: #fff; font-size: 0.88rem;" id="modal-spot-host">Host Name</strong>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 0.8rem; color: var(--text-muted);">Security Rating:</span>
-          <span style="color: var(--accent-amber); font-weight: 700; font-size: 0.85rem;" id="modal-spot-rating">★ 4.9</span>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Security & Trust:</span>
+          <span style="color: var(--accent-amber); font-weight: 700; font-size: 0.85rem;" id="modal-spot-rating">★ 4.9 (89 reviews)</span>
         </div>
       </div>
 
@@ -1341,7 +1491,7 @@
           <span id="calc-base-rate" style="color: #fff;">₹30 × 2 hr = ₹60</span>
         </div>
         <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;" id="calc-surge-row">
-          <span style="color: var(--accent-rose); font-weight: 600;">AI Dynamic Surge:</span>
+          <span style="color: var(--accent-rose); font-weight: 600;">AI Dynamic Surge (Weather/Peak):</span>
           <span id="calc-surge-val" style="color: var(--accent-rose); font-weight: 700;">+ ₹30</span>
         </div>
         <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; color: var(--text-muted); font-size: 0.78rem;">
@@ -1378,7 +1528,7 @@
     </div>
   </div>
 
-  <!-- Digital Smart Parking Pass Modal -->
+  <!-- Digital Smart Parking Pass Modal (Feature 14) -->
   <div class="modal-overlay" id="pass-modal">
     <div class="modal-window" style="text-align: center;">
       <button class="modal-close" onclick="closeModal('pass-modal')">✕</button>
@@ -1390,7 +1540,6 @@
       <!-- SVG Animated QR Code -->
       <div style="background: #fff; padding: 1.25rem; border-radius: var(--radius-md); display: inline-block; box-shadow: 0 0 25px rgba(56, 189, 248, 0.4); margin-bottom: 1.25rem;">
         <svg width="180" height="180" viewBox="0 0 180 180">
-          <!-- Stylized QR Code Pattern -->
           <rect x="0" y="0" width="180" height="180" fill="#fff" />
           
           <!-- Corner Position Markers -->
